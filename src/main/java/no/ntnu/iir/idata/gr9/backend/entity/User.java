@@ -37,7 +37,7 @@ public class User {
    * @param isAdmin  the user's role
    *                 <p>{@code true} if amdin, {@code false} if not.</p>
    */
-  public User(int id, String username, String email, String password, Role isAdmin) {
+  public User(int id, String username, String email, String password, boolean isAdmin) {
     setId(id);
     setUsername(username);
     setEmail(email);
