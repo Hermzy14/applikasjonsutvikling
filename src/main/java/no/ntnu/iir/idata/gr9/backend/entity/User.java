@@ -18,6 +18,7 @@ public class User {
   private String email;
   private String password;
   private boolean isAdmin;
+  // TODO: Add a field to the users favorite courses.
 
   public User() {
   }
