@@ -1,15 +1,26 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 /**
  * Represents a user of the system.
  * <p>The user can be either an admin or a "regular" logged in user.</p>
  */
+@Entity
 public class User {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
   private String username;
   private String email;
   private String password;
-  private Role role;
+  private boolean isAdmin;
+
+  public User() {
+  }
 
   /**
    * Creates a new user.
@@ -23,15 +34,15 @@ public class User {
    * @param password the user's password
    *                 <p>Must be a string</p>
    *                 <p>Must be hashed</p>
-   * @param role     the user's role
-   *                 <p>Must be either ADMIN or USER</p>
+   * @param isAdmin  the user's role
+   *                 <p>{@code true} if amdin, {@code false} if not.</p>
    */
-  public User(int id, String username, String email, String password, Role role) {
+  public User(int id, String username, String email, String password, Role isAdmin) {
     setId(id);
     setUsername(username);
     setEmail(email);
     setPassword(password);
-    setRole(role);
+    setIsAdmin(isAdmin);
   }
 
   /**
@@ -133,21 +144,19 @@ public class User {
   /**
    * Gets the user's role.
    *
-   * @return the user's role
+   * @return {@code true} if amdin, {@code false} if not
    */
-  public Role getRole() {
-    return this.role;
+  public boolean getIsAdmin() {
+    return this.isAdmin;
   }
 
   /**
-   * Sets the user's role. TODO: The role must be either ADMIN or USER
+   * Sets the user's role.
+   * <p>{@code true} if amdin, {@code false} if not.</p>
    *
-   * @param role the user's role
+   * @param isAdmin the user's role
    */
-  public void setRole(Role role) {
-    if (role == null) {
-      throw new IllegalArgumentException("The role must not be null");
-    }
-    this.role = role;
+  public void setIsAdmin(boolean isAdmin) {
+    this.isAdmin = isAdmin;
   }
 }
