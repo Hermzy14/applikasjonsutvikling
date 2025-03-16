@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a user of the system.
@@ -18,7 +21,8 @@ public class User {
   private String email;
   private String password;
   private boolean isAdmin;
-  // TODO: Add a field to the users favorite courses.
+  @OneToMany(mappedBy = "user")
+  private Set<FavoriteCourse> favorites = new HashSet<>();
 
   public User() {
   }
@@ -56,7 +60,7 @@ public class User {
   }
 
   /**
-   * Sets the user's id. TODO: The id must be unique and a positive integer.
+   * Sets the user's id.
    *
    * @param id the user's id
    */
@@ -159,5 +163,22 @@ public class User {
    */
   public void setIsAdmin(boolean isAdmin) {
     this.isAdmin = isAdmin;
+  }
+
+  /**
+   * Gets the user's favorite courses.
+   */
+  public Set<FavoriteCourse> getFavorites() {
+    return this.favorites;
+  }
+
+  /**
+   * Adds a course to the user's favorite courses.
+   *
+   * @param course the course to add
+   */
+  public void addFavoriteCourse(Course course) {
+    FavoriteCourse favoriteCourse = new FavoriteCourse(this, course);
+    this.favorites.add(favoriteCourse);
   }
 }
