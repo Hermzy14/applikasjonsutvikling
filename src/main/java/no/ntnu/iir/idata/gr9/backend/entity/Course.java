@@ -2,6 +2,8 @@ package no.ntnu.iir.idata.gr9.backend.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a course.
@@ -31,6 +33,11 @@ import jakarta.persistence.Id;
 public class Course {
   @Id
   private int id;
+    private String title;
+    private String description;
+    private String category;
+    private String keywords;
+    private String difficulty;
 
   public Course() {}
 
