@@ -7,13 +7,6 @@ import java.util.List;
 
 /**
  * Represents a course.
- * <p>A course includes one of the following categories:</p>
- * <ul>
- *   <li>Information Technologies</li>
- *   <li>Digital Marketing</li>
- *   <li>Business and Entrepreneurship</li>
- *   <li>Data Science and Analytics</li>
- * </ul>
  * <p>Each course has:</p>
  * <ul>
  *   <li>An id</li>
