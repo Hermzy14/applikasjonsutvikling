@@ -2,10 +2,12 @@ package no.ntnu.iir.idata.gr9.backend.repository;
 
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * Represents a course repository.
  */
+@Repository
 public interface CourseRepository extends CrudRepository<Course, Long> {
   /**
    * Finds a course by its id.
