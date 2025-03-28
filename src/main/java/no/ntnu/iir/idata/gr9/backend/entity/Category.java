@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +31,7 @@ public class Category {
   private int id;
   private String name;
   @OneToMany(mappedBy = "category")
+  @JsonIgnore
   private Set<Course> courses;
 
   public Category() {
