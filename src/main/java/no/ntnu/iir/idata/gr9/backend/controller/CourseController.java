@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -60,6 +61,26 @@ public class CourseController {
       return ResponseEntity.ok(course);
     } else {
       logger.error("Course with ID {} not found", id);
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  /**
+   * Get a specific course by searching for its name.
+   * <p>
+   * Endpoint: {@code GET /courses/search?query=}.
+   *
+   * @param query the name of the course to search for
+   * @return the course with the specified name, or a 404 error if not found
+   */
+  @GetMapping("/search")
+  public ResponseEntity<Course> getCourseByName(@RequestParam String query) {
+    logger.info("Searching for course with name: {}", query);
+    Course course = this.courseRepository.findByTitle(query);
+    if (course != null) {
+      return ResponseEntity.ok(course);
+    } else {
+      logger.error("Course with name {} not found", query);
       return ResponseEntity.notFound().build();
     }
   }
