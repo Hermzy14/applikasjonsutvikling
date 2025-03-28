@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -128,5 +129,27 @@ public class CourseController {
   public Iterable<Course> getCoursesByVisibility() {
     logger.info("Getting courses that are visible");
     return this.courseRepository.findByIsVisibleTrue();
+  }
+
+  /**
+   * Toggle visibility for a course.
+   * <p>
+   * Endpoint: {@code PATCH /courses/toggle_visibility/{id}}.
+   *
+   * @param id the ID of the course to toggle visibility
+   * @return a response entity indicating the result of the operation
+   */
+  @PatchMapping("/toggle_visibility/{id}")
+  public ResponseEntity<String> toggleCourse(@PathVariable int id) {
+    logger.info("Toggling visibility for course with ID: {}", id);
+    Course course = this.courseRepository.findById(id);
+    if (course != null) {
+      course.setIsVisible(!course.getIsVisible());
+      this.courseRepository.save(course);
+      return ResponseEntity.ok("Course visibility toggled.");
+    } else {
+      logger.error("Course with ID {} not found", id);
+      return ResponseEntity.notFound().build();
+    }
   }
 }
