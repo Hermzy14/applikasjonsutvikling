@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import no.ntnu.iir.idata.gr9.backend.entity.Category;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
+import no.ntnu.iir.idata.gr9.backend.repository.CategoryRepository;
 import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/courses")
 public class CourseController {
   private final CourseRepository courseRepository;
+  private final CategoryRepository categoryRepository;
   private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
   private Map<Integer, Course> courses;
 
@@ -31,9 +33,11 @@ public class CourseController {
    * Constructor for CourseController.
    *
    * @param courseRepository the repository for managing courses
+   * @param categoryRepository the repository for managing categories
    */
-  public CourseController(CourseRepository courseRepository) {
+  public CourseController(CourseRepository courseRepository, CategoryRepository categoryRepository) {
     this.courseRepository = courseRepository;
+    this.categoryRepository = categoryRepository;
   }
 
   /**
@@ -94,12 +98,18 @@ public class CourseController {
    * <p>
    * Endpoint: {@code GET /courses/category/{category}}.
    *
-   * @param category the category of the courses to retrieve
+   * @param id the category id of the courses to retrieve
    * @return a collection of courses in the specified category
    */
-  @GetMapping("/category/{category}")
-  public Iterable<Course> getCoursesByCategory(@PathVariable Category category) {
-    logger.info("Getting courses in category: {}", category);
-    return this.courseRepository.findByCategory(category);
+  @GetMapping("/category/{id}")
+  public Iterable<Course> getCoursesByCategory(@PathVariable int id) {
+    logger.info("Getting courses in category with ID: {}", id);
+    Category category = this.categoryRepository.findById(id);
+    if (category != null) {
+      return this.courseRepository.findByCategory(category);
+    } else {
+      logger.error("Category with ID {} not found", id);
+      return null;
+    }
   }
 }
