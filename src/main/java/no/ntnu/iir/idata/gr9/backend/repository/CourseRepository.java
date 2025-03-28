@@ -23,7 +23,7 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
   /**
    * Finds a course by its category.
    */
-  Course findByCategory(Category category);
+  Iterable<Course> findByCategory(Category category);
 
   /**
    * Finds visible courses.

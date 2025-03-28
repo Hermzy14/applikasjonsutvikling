@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import no.ntnu.iir.idata.gr9.backend.entity.Category;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
 import org.slf4j.Logger;
@@ -86,5 +87,19 @@ public class CourseController {
       logger.error("Course with name {} not found", query);
       return ResponseEntity.notFound().build();
     }
+  }
+
+  /**
+   * Get courses by their category.
+   * <p>
+   * Endpoint: {@code GET /courses/category/{category}}.
+   *
+   * @param category the category of the courses to retrieve
+   * @return a collection of courses in the specified category
+   */
+  @GetMapping("/category/{category}")
+  public Iterable<Course> getCoursesByCategory(@PathVariable Category category) {
+    logger.info("Getting courses in category: {}", category);
+    return this.courseRepository.findByCategory(category);
   }
 }
