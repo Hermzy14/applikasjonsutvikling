@@ -1,5 +1,14 @@
 package no.ntnu.iir.idata.gr9.backend.controller;
 
+import java.util.Map;
+import java.util.Optional;
+import no.ntnu.iir.idata.gr9.backend.entity.Course;
+import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,4 +18,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/courses")
 public class CourseController {
+  private final CourseRepository courseRepository;
+  private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+  private Map<Integer, Course> courses;
+
+  /**
+   * Constructor for CourseController.
+   *
+   * @param courseRepository the repository for managing courses
+   */
+  public CourseController(CourseRepository courseRepository) {
+    this.courseRepository = courseRepository;
+  }
+
+  /**
+   * Get all courses.
+   * <p>
+   * Endpoint: {@code GET /courses}.
+   *
+   * @return a collection of all courses
+   */
+  @GetMapping
+  public Iterable<Course> getCourses() {
+    logger.info("Getting all courses");
+    return this.courseRepository.findAll();
+  }
+
+  /**
+   * Get a specific course by ID.
+   * <p>
+   * Endpoint: {@code GET /courses/{id}}.
+   *
+   * @param id the ID of the course to retrieve
+   * @return the course with the specified ID, or a 404 error if not found
+   */
+  @GetMapping("/{id}")
+  public ResponseEntity<Course> getCourse(@PathVariable int id) {
+    logger.info("Getting course with ID: {}", id);
+    Course course = this.courseRepository.findById(id);
+    if (course != null) {
+      return ResponseEntity.ok(course);
+    } else {
+      logger.error("Course with ID {} not found", id);
+      return ResponseEntity.notFound().build();
+    }
+  }
 }
