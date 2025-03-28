@@ -16,25 +16,22 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
   /**
    * Finds specific order by its id.
    */
-    Order findById(int id);
+  Order findById(int id);
 
   /**
    * Finds all orders placed by specific user
    */
-  List<Order> findByUserId(int userId);
-
+  List<Order> findByUser_Id(int userId);
 
   /**
    * Finds all orders placed for course.
    */
-  List<Order> findByCourseId(int courseId);
-
+  List<Order> findByCourse_Id(int courseId);
 
   /**
    * Finds a order by its recent order date.
    */
   List<Order> findByOrderDateAfter(LocalDate date);
-
 
   /**
    * Finds a order by filtering price.

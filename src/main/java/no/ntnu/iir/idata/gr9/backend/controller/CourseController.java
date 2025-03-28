@@ -1,5 +1,8 @@
 package no.ntnu.iir.idata.gr9.backend.controller;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
