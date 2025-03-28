@@ -11,12 +11,14 @@ import no.ntnu.iir.idata.gr9.backend.repository.CategoryRepository;
 import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * REST API controller for managing courses.
@@ -32,10 +34,11 @@ public class CourseController {
   /**
    * Constructor for CourseController.
    *
-   * @param courseRepository the repository for managing courses
+   * @param courseRepository   the repository for managing courses
    * @param categoryRepository the repository for managing categories
    */
-  public CourseController(CourseRepository courseRepository, CategoryRepository categoryRepository) {
+  public CourseController(CourseRepository courseRepository,
+                          CategoryRepository categoryRepository) {
     this.courseRepository = courseRepository;
     this.categoryRepository = categoryRepository;
   }
@@ -109,7 +112,21 @@ public class CourseController {
       return this.courseRepository.findByCategory(category);
     } else {
       logger.error("Category with ID {} not found", id);
-      return null;
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "Category with ID " + id + " not found");
     }
+  }
+
+  /**
+   * Get courses by their visibility status.
+   * <p>
+   * Endpoint: {@code GET /courses/visible}.
+   *
+   * @return a collection of courses with the specified visibility status
+   */
+  @GetMapping("/visible")
+  public Iterable<Course> getCoursesByVisibility() {
+    logger.info("Getting courses that are visible");
+    return this.courseRepository.findByIsVisibleTrue();
   }
 }
