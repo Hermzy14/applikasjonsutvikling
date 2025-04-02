@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
  *   <li>An id</li>
  *   <li>A name</li>
  *   <li>A price</li>
+ *   <li>A discount percentage</li>
  *   <li>Currency</li>
  *   <li>The course</li>
  * </ul>
@@ -25,6 +26,7 @@ public class CourseProvider {
   private int id;
   private String name;
   private double price;
+  private double discount;
   private String currency;
   @ManyToOne
   @JsonIgnore
@@ -42,14 +44,16 @@ public class CourseProvider {
    * @param name     the course provider's name
    * @param price    the course provider's price
    *                 <p>Must be a positive number</p>
+   * @param discount the course provider's discount percentage
    * @param currency the course provider's currency
    *                 <p>Must be a string</p>
    * @param course   the course provider's course
    */
-  public CourseProvider(int id, String name, double price, String currency, Course course) {
+  public CourseProvider(int id, String name, double price, double discount, String currency, Course course) {
     setId(id);
     setName(name);
     setPrice(price);
+    setDiscount(discount);
     setCurrency(currency);
     setCourse(course);
   }
@@ -107,6 +111,24 @@ public class CourseProvider {
   public void setPrice(double price) {
     this.price = price;
   }
+
+    /**
+     * Gets the course provider's discount percentage.
+     *
+     * @return the course provider's discount percentage
+     */
+    public double getDiscount() {
+        return this.discount;
+    }
+
+    /**
+     * Sets the course provider's discount percentage.
+     *
+     * @param discount the course provider's discount percentage
+     */
+    public void setDiscount(double discount) {
+      this.discount = discount;
+    }
 
   /**
    * Gets the course provider's currency.
