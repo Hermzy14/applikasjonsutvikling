@@ -1,9 +1,7 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 /**
@@ -19,8 +17,10 @@ import java.time.LocalDate;
  */
 
 @Entity
+@Table(name = "orders") // avoids reserved keyword issue
 public class Order {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
   private LocalDate orderDate;
   private double price;
