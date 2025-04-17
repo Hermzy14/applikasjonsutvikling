@@ -12,7 +12,7 @@ import java.util.List;
  */
 
 @Repository
-public interface OrderRepository extends CrudRepository<Order, Long> {
+public interface OrderRepository extends CrudRepository<Order, Integer> {
   /**
    * Finds specific order by its id.
    */
