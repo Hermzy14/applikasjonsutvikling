@@ -171,12 +171,16 @@ public class CourseController {
    * @return the image URL of the course, or a 404 error if not found
    */
   @GetMapping("/{id}/image")
-  public ResponseEntity<String> getCourseImage(@PathVariable int id) {
+  public ResponseEntity<Map<String, String>> getCourseImage(@PathVariable int id) {
     Course course = this.courseRepository.findById(id);
     if (course == null || course.getImagePath() == null) {
       return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.ok(course.getImagePath());
+
+    Map<String, String> response = new HashMap<>();
+    response.put("imagePath", "/course-images/" + course.getImagePath());
+
+    return ResponseEntity.ok(response);
   }
 
   /**

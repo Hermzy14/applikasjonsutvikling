@@ -5,6 +5,7 @@ target/
 .gitattributes
 !**/src/main/**/target/
 !**/src/test/**/target/
+/course-images
 
 ### STS ###
 .apt_generated
