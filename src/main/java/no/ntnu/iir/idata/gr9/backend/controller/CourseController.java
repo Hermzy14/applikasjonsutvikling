@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.controller;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -17,9 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -174,5 +177,39 @@ public class CourseController {
       return ResponseEntity.notFound().build();
     }
     return ResponseEntity.ok(course.getImagePath());
+  }
+
+  /**
+   * Upload a course image.
+   * <p>
+   * Endpoint: {@code POST /courses/{id}/image}.
+   *
+   * @param id   the ID of the course to upload the image for
+   * @param image the image file to upload
+   * @return a response entity indicating the result of the operation
+   */
+  @PostMapping("/{id}/image")
+  public ResponseEntity<String> uploadCourseImage(@PathVariable int id, @RequestParam("image")
+  MultipartFile image) {
+    try {
+      Course course = this.courseRepository.findById(id);
+      if (course == null) {
+        return ResponseEntity.notFound().build();
+      }
+      // Delete the old image if it exists
+      if (course.getImagePath() != null) {
+        this.fileStorageService.deleteFile(course.getImagePath());
+      }
+
+      // Upload the new image
+      String fileName = this.fileStorageService.storeFile(image);
+      course.setImagePath(fileName);
+      this.courseRepository.save(course);
+
+      return ResponseEntity.ok("Image uploaded successfully.");
+    } catch (IOException e) {
+      logger.error("Error uploading image for course with ID {}: {}", id, e.getMessage());
+      return ResponseEntity.internalServerError().body("Failed to upload image: " + e.getMessage());
+    }
   }
 }
