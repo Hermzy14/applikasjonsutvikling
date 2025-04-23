@@ -9,6 +9,7 @@ import no.ntnu.iir.idata.gr9.backend.entity.Category;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import no.ntnu.iir.idata.gr9.backend.repository.CategoryRepository;
 import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
+import no.ntnu.iir.idata.gr9.backend.service.FileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class CourseController {
   private final CourseRepository courseRepository;
   private final CategoryRepository categoryRepository;
+  private final FileStorageService fileStorageService;
   private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
   private Map<Integer, Course> courses;
 
@@ -37,11 +39,14 @@ public class CourseController {
    *
    * @param courseRepository   the repository for managing courses
    * @param categoryRepository the repository for managing categories
+   * @param fileStorageService the service for managing file storage
    */
   public CourseController(CourseRepository courseRepository,
-                          CategoryRepository categoryRepository) {
+                          CategoryRepository categoryRepository,
+                          FileStorageService fileStorageService) {
     this.courseRepository = courseRepository;
     this.categoryRepository = categoryRepository;
+    this.fileStorageService = fileStorageService;
   }
 
   /**
@@ -152,5 +157,22 @@ public class CourseController {
       logger.error("Course with ID {} not found", id);
       return ResponseEntity.notFound().build();
     }
+  }
+
+  /**
+   * Get course images.
+   * <p>
+   * Endpoint: {@code GET /courses/{id}/image}.
+   *
+   * @param id the ID of the course to retrieve the image for
+   * @return the image URL of the course, or a 404 error if not found
+   */
+  @GetMapping("/{id}/image")
+  public ResponseEntity<String> getCourseImage(@PathVariable int id) {
+    Course course = this.courseRepository.findById(id);
+    if (course == null || course.getImagePath() == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(course.getImagePath());
   }
 }
