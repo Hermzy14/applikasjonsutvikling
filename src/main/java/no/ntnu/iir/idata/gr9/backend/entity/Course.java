@@ -24,6 +24,7 @@ import java.util.Set;
  *   <li>Hours per week</li>
  *   <li>Related certifications</li>
  *   <li>If it is visible or not</li>
+ *   <li>An image path</li>
  *   <li>Course providers</li>
  * </ul>
  */
@@ -41,6 +42,7 @@ public class Course {
   private int hoursPerWeek;
   private String relatedCertifications;
   private boolean isVisible;
+  private String imagePath;
   @ManyToOne
   @JoinColumn(name = "category_id")
   private Category category;
@@ -333,4 +335,22 @@ public class Course {
     // Update the other side of the relationship
     provider.setCourse(null);
   }
+
+    /**
+     * Gets the course's image path.
+     *
+     * @return the course's image path
+     */
+    public String getImagePath() {
+      return this.imagePath;
+    }
+
+    /**
+     * Sets the course's image path.
+     *
+     * @param imagePath the course's image path
+     */
+    public void setImagePath(String imagePath) {
+      this.imagePath = imagePath;
+    }
 }

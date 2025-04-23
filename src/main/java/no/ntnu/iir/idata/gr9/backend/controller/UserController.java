@@ -9,6 +9,7 @@ import no.ntnu.iir.idata.gr9.backend.entity.Category;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import no.ntnu.iir.idata.gr9.backend.repository.CategoryRepository;
 import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
+import no.ntnu.iir.idata.gr9.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,6 @@ public UserController(UserRepository userRepository) {
  *
  * @param user the user to register
  */
-@PostMapping("/register")
 
 
 
