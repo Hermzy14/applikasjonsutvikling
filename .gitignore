@@ -7,6 +7,9 @@ target/
 !**/src/test/**/target/
 /course-images
 
+# Environment variables
+.env
+
 ### STS ###
 .apt_generated
 .classpath
