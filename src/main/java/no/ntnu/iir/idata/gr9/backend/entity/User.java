@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,15 +14,22 @@ import java.util.Set;
  * <p>The user can be either an admin or a "regular" logged in user.</p>
  */
 @Entity
+@Schema(description = "Represents a user of the system.")
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "The user's unique id.", example = "1")
   private int id;
+  @Schema(description = "The user's username.", example = "ola")
   private String username;
+  @Schema(description = "The user's email", example = "ola@ntnu.no")
   private String email;
+  @Schema(description = "The user's password", example = "hashedpassword")
   private String password;
+  @Schema(description = "The user's role, true if admin, false if not", example = "false")
   private boolean isAdmin;
   @OneToMany(mappedBy = "user")
+  @Schema(description = "The user's favorite courses.")
   private Set<FavoriteCourse> favorites = new HashSet<>();
 
   public User() {
