@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,17 +12,21 @@ import jakarta.persistence.ManyToOne;
  * Represents a favorite course for a user.
  */
 @Entity
+@Schema(description = "Represents a favorite course for a user.")
 public class FavoriteCourse {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "The favorite course's unique id.", example = "1")
   private int id;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
+  @Schema(description = "The user who favorited the course.")
   private User user;
 
   @ManyToOne
   @JoinColumn(name = "course_id")
+  @Schema(description = "The course that was favorited.")
   private Course course;
 
   public FavoriteCourse() {
