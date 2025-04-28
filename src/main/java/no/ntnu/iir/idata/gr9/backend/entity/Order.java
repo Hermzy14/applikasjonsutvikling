@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -15,21 +16,27 @@ import java.time.LocalDate;
  * <li>A price from course and a discount if available</li>
  * </ul>
  */
-
 @Entity
 @Table(name = "orders") // avoids reserved keyword issue
+@Schema(description = "Represents an order.")
 public class Order {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "The order's unique id.", example = "1")
   private int id;
+  @Schema(description = "The order's date.", example = "2023-01-01")
   private LocalDate orderDate;
+  @Schema(description = "The order's price.", example = "100.0")
   private double price;
+  @Schema(description = "The order's discount.", example = "10.0")
   private double discount;
   @ManyToOne
   @JoinColumn(name = "user_id")
+  @Schema(description = "The user who made the order.")
   private User user;
   @ManyToOne
   @JoinColumn(name = "course_id")
+  @Schema(description = "The course that was ordered.")
   private Course course;
 
   public Order() {
@@ -39,20 +46,21 @@ public class Order {
    * Creates a new order.
    *
    * @param id        the order's id
-   * <p>Must be unique</p>
-   * <p>Must be a positive integer</p>
+   *                  <p>Must be unique</p>
+   *                  <p>Must be a positive integer</p>
    * @param user      the user
-   * <p>Must not be null</p>
+   *                  <p>Must not be null</p>
    * @param course    the course
-   * <p>Must not be null</p>
+   *                  <p>Must not be null</p>
    * @param orderDate the order's date
-   * <p>Must be a date</p>
+   *                  <p>Must be a date</p>
    * @param price     the order's price
-   * <p>Must be a positive number</p>
+   *                  <p>Must be a positive number</p>
    * @param discount  the order's discount
-   * <p>Must be a positive number</p>
+   *                  <p>Must be a positive number</p>
    */
-  public Order(int id, User user, Course course, LocalDate orderDate, double price, double discount) {
+  public Order(int id, User user, Course course, LocalDate orderDate, double price,
+               double discount) {
     setId(id);
     setUser(user);
     setCourse(course);
