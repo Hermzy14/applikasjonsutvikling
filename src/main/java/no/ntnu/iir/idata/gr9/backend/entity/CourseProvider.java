@@ -1,6 +1,7 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,16 +21,23 @@ import jakarta.persistence.ManyToOne;
  * </ul>
  */
 @Entity
+@Schema(description = "Represents a course provider.")
 public class CourseProvider {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "The course provider's unique id.", example = "1")
   private int id;
+  @Schema(description = "The course provider's name.", example = "Coursera")
   private String name;
+  @Schema(description = "The course provider's price.", example = "100.0")
   private double price;
+  @Schema(description = "The course provider's discount percentage.", example = "10.0")
   private double discount;
+  @Schema(description = "The course provider's currency.", example = "USD")
   private String currency;
   @ManyToOne
   @JsonIgnore
+  @Schema(description = "The course provider's course.")
   private Course course;
 
   public CourseProvider() {
@@ -49,7 +57,8 @@ public class CourseProvider {
    *                 <p>Must be a string</p>
    * @param course   the course provider's course
    */
-  public CourseProvider(int id, String name, double price, double discount, String currency, Course course) {
+  public CourseProvider(int id, String name, double price, double discount, String currency,
+                        Course course) {
     setId(id);
     setName(name);
     setPrice(price);
@@ -112,23 +121,23 @@ public class CourseProvider {
     this.price = price;
   }
 
-    /**
-     * Gets the course provider's discount percentage.
-     *
-     * @return the course provider's discount percentage
-     */
-    public double getDiscount() {
-        return this.discount;
-    }
+  /**
+   * Gets the course provider's discount percentage.
+   *
+   * @return the course provider's discount percentage
+   */
+  public double getDiscount() {
+    return this.discount;
+  }
 
-    /**
-     * Sets the course provider's discount percentage.
-     *
-     * @param discount the course provider's discount percentage
-     */
-    public void setDiscount(double discount) {
-      this.discount = discount;
-    }
+  /**
+   * Sets the course provider's discount percentage.
+   *
+   * @param discount the course provider's discount percentage
+   */
+  public void setDiscount(double discount) {
+    this.discount = discount;
+  }
 
   /**
    * Gets the course provider's currency.

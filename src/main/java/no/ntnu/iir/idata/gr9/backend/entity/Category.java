@@ -30,13 +30,13 @@ import java.util.Set;
 public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "The category's unique id.", example = "1")
+  @Schema(description = "The category's unique id.", example = "1")
   private int id;
-    @Schema(description = "The category's name.", example = "Information Technologies")
+  @Schema(description = "The category's name.", example = "Information Technologies")
   private String name;
   @OneToMany(mappedBy = "category")
   @JsonIgnore
-    @Schema(description = "The category's courses.")
+  @Schema(description = "The category's courses.")
   private Set<Course> courses;
 
   public Category() {
