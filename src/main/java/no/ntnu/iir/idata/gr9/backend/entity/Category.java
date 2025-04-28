@@ -1,6 +1,7 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,13 +26,17 @@ import java.util.Set;
  * </ul>
  */
 @Entity
+@Schema(description = "Represents a category.")
 public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "The category's unique id.", example = "1")
   private int id;
+    @Schema(description = "The category's name.", example = "Information Technologies")
   private String name;
   @OneToMany(mappedBy = "category")
   @JsonIgnore
+    @Schema(description = "The category's courses.")
   private Set<Course> courses;
 
   public Category() {
