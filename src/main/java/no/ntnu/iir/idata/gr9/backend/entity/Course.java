@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -29,24 +30,39 @@ import java.util.Set;
  * </ul>
  */
 @Entity
+@Schema(description = "Represents a course.")
 public class Course {
   @Id
+  @Schema(description = "The course's unique id.", example = "1")
   private int id;
+    @Schema(description = "The course's title.", example = "Java Programming")
   private String title;
+    @Schema(description = "The course's description.", example = "Learn Java programming from scratch.")
   private String description;
+    @Schema(description = "The course's keywords.", example = "Java, programming, software development")
   private String keywords;
+    @Schema(description = "The course's difficulty level.", example = "Beginner")
   private String difficulty;
+    @Schema(description = "The course's start date.", example = "2023-01-01")
   private LocalDate startDate;
+    @Schema(description = "The course's end date.", example = "2023-12-31")
   private LocalDate endDate;
+    @Schema(description = "The course's ECTS credits.", example = "7.5")
   private Double ects;
+    @Schema(description = "The course's hours per week.", example = "10")
   private int hoursPerWeek;
+    @Schema(description = "The course's related certifications.", example = "Oracle Certified Java Programmer")
   private String relatedCertifications;
+    @Schema(description = "The course's visibility.", example = "true")
   private boolean isVisible;
+    @Schema(description = "The course's image path.", example = "/images/course.jpg")
   private String imagePath;
   @ManyToOne
   @JoinColumn(name = "category_id")
+    @Schema(description = "The course's category.")
   private Category category;
   @OneToMany(mappedBy = "course")
+    @Schema(description = "The course's providers.")
   private Set<CourseProvider> providers = new HashSet<>();
 
   public Course() {
@@ -336,21 +352,21 @@ public class Course {
     provider.setCourse(null);
   }
 
-    /**
-     * Gets the course's image path.
-     *
-     * @return the course's image path
-     */
-    public String getImagePath() {
-      return this.imagePath;
-    }
+  /**
+   * Gets the course's image path.
+   *
+   * @return the course's image path
+   */
+  public String getImagePath() {
+    return this.imagePath;
+  }
 
-    /**
-     * Sets the course's image path.
-     *
-     * @param imagePath the course's image path
-     */
-    public void setImagePath(String imagePath) {
-      this.imagePath = imagePath;
-    }
+  /**
+   * Sets the course's image path.
+   *
+   * @param imagePath the course's image path
+   */
+  public void setImagePath(String imagePath) {
+    this.imagePath = imagePath;
+  }
 }
