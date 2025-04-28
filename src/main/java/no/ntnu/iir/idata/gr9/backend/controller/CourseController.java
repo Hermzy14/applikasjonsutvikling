@@ -1,9 +1,12 @@
 package no.ntnu.iir.idata.gr9.backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,7 @@ import no.ntnu.iir.idata.gr9.backend.service.FileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +35,7 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @RestController
 @RequestMapping("/courses")
+@Tag(name = "Course Management", description = "API endpoints for managing course resources")
 public class CourseController {
   private final CourseRepository courseRepository;
   private final CategoryRepository categoryRepository;
@@ -61,11 +66,24 @@ public class CourseController {
    * @return a collection of all courses
    */
   @GetMapping
-  @Operation(summary = "Get all courses", description = "Returns a list of all courses.")
+  @Operation(
+      summary = "Get all courses",
+      description = "Retrieves a list of all courses in the system."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Courses found and returned"),
-      @ApiResponse(responseCode = "404", description = "No courses found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Courses found and returned",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = Course.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "No courses found, empty response",
+          content = @Content
+      )
   })
   public Iterable<Course> getCourses() {
     logger.info("Getting all courses");
@@ -81,13 +99,28 @@ public class CourseController {
    * @return the course with the specified ID, or a 404 error if not found
    */
   @GetMapping("/{id}")
-  @Operation(summary = "Get course by ID", description = "Returns a course by its ID.")
+  @Operation(
+      summary = "Get course by ID",
+      description = "Retrieves a specific course using its unique identifier."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Course found and returned"),
-      @ApiResponse(responseCode = "404", description = "Course not found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Course found and returned",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = Course.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Course not found, empty response",
+          content = @Content
+      )
   })
-  public ResponseEntity<Course> getCourse(@PathVariable int id) {
+  public ResponseEntity<Course> getCourse(
+      @Parameter(description = "ID of the course to retrieve", required = true)
+      @PathVariable int id) {
     logger.info("Getting course with ID: {}", id);
     Course course = this.courseRepository.findById(id);
     if (course != null) {
@@ -107,13 +140,28 @@ public class CourseController {
    * @return the course with the specified name, or a 404 error if not found
    */
   @GetMapping("/search")
-  @Operation(summary = "Get course by name", description = "Returns a course by its name.")
+  @Operation(
+      summary = "Search for course by name",
+      description = "Searches for and retrieves a course by its title."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Course found and returned"),
-      @ApiResponse(responseCode = "404", description = "Course not found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Course found and returned",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = Course.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Course not found, empty response",
+          content = @Content
+      )
   })
-  public ResponseEntity<Course> getCourseByName(@RequestParam String query) {
+  public ResponseEntity<Course> getCourseByName(
+      @Parameter(description = "Title of the course to search for", required = true)
+      @RequestParam String query) {
     logger.info("Searching for course with name: {}", query);
     Course course = this.courseRepository.findByTitle(query);
     if (course != null) {
@@ -133,13 +181,28 @@ public class CourseController {
    * @return a collection of courses in the specified category
    */
   @GetMapping("/category/{id}")
-  @Operation(summary = "Get courses by category", description = "Returns courses by their category.")
+  @Operation(
+      summary = "Get courses by category",
+      description = "Retrieves all courses belonging to a specific category."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Courses found and returned"),
-      @ApiResponse(responseCode = "404", description = "Category not found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Courses found and returned",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = Course.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Category not found, empty response",
+          content = @Content
+      )
   })
-  public Iterable<Course> getCoursesByCategory(@PathVariable int id) {
+  public Iterable<Course> getCoursesByCategory(
+      @Parameter(description = "ID of the category to filter courses by", required = true)
+      @PathVariable int id) {
     logger.info("Getting courses in category with ID: {}", id);
     Category category = this.categoryRepository.findById(id);
     if (category != null) {
@@ -159,11 +222,24 @@ public class CourseController {
    * @return a collection of courses with the specified visibility status
    */
   @GetMapping("/visible")
-  @Operation(summary = "Get visible courses", description = "Returns courses that are visible.")
+  @Operation(
+      summary = "Get visible courses",
+      description = "Retrieves all courses that are marked as visible."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Visible courses found and returned"),
-      @ApiResponse(responseCode = "404", description = "No visible courses found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Visible courses found and returned",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = Course.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "No visible courses found, empty response",
+          content = @Content
+      )
   })
   public Iterable<Course> getCoursesByVisibility() {
     logger.info("Getting courses that are visible");
@@ -180,13 +256,29 @@ public class CourseController {
    * @return a response entity indicating the result of the operation
    */
   @PatchMapping("/toggle_visibility/{id}")
-  @Operation(summary = "Toggle course visibility", description = "Toggles the visibility of a course.")
+  @Operation(
+      summary = "Toggle course visibility",
+      description = "Toggles the visibility status of a course. "
+          + "Changes visible courses to hidden and vice versa."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Course visibility toggled"),
-      @ApiResponse(responseCode = "404", description = "Course not found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Course visibility toggled successfully",
+          content = @Content(
+              mediaType = "text/plain",
+              schema = @Schema(implementation = String.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Course not found, empty response",
+          content = @Content
+      )
   })
-  public ResponseEntity<String> toggleCourse(@PathVariable int id) {
+  public ResponseEntity<String> toggleCourse(
+      @Parameter(description = "ID of the course to toggle visibility", required = true)
+      @PathVariable int id) {
     logger.info("Toggling visibility for course with ID: {}", id);
     Course course = this.courseRepository.findById(id);
     if (course != null) {
@@ -208,13 +300,28 @@ public class CourseController {
    * @return the image URL of the course, or a 404 error if not found
    */
   @GetMapping("/{id}/image")
-  @Operation(summary = "Get course image", description = "Returns the image URL of a course.")
+  @Operation(
+      summary = "Get course image",
+      description = "Retrieves the URL of the image associated with a specific course."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Course image found and returned"),
-      @ApiResponse(responseCode = "404", description = "Course not found, empty response",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Course image found and returned",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(type = "object", example = "{\"imagePath\": \"/course-images/filename.jpg\"}")
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Course not found or no image available, empty response",
+          content = @Content
+      )
   })
-  public ResponseEntity<Map<String, String>> getCourseImage(@PathVariable int id) {
+  public ResponseEntity<Map<String, String>> getCourseImage(
+      @Parameter(description = "ID of the course to get image for", required = true)
+      @PathVariable int id) {
     Course course = this.courseRepository.findById(id);
     if (course == null || course.getImagePath() == null) {
       return ResponseEntity.notFound().build();
@@ -235,17 +342,40 @@ public class CourseController {
    * @param image the image file to upload
    * @return a response entity indicating the result of the operation
    */
-  @PostMapping("/{id}/image")
-  @Operation(summary = "Upload course image", description = "Uploads an image for a course.")
+  @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Operation(
+      summary = "Upload course image",
+      description = "Uploads and associates an image with a specific course. "
+          + "Replaces any existing image for the course."
+  )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Course image uploaded successfully"),
-      @ApiResponse(responseCode = "404", description = "Course not found, empty response",
-          content = @Content),
-      @ApiResponse(responseCode = "500", description = "Failed to upload image",
-          content = @Content)
+      @ApiResponse(
+          responseCode = "200",
+          description = "Course image uploaded successfully",
+          content = @Content(
+              mediaType = "text/plain",
+              schema = @Schema(implementation = String.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Course not found, empty response",
+          content = @Content
+      ),
+      @ApiResponse(
+          responseCode = "500",
+          description = "Failed to upload image due to server error",
+          content = @Content(
+              mediaType = "text/plain",
+              schema = @Schema(implementation = String.class)
+          )
+      )
   })
-  public ResponseEntity<String> uploadCourseImage(@PathVariable int id, @RequestParam("image")
-  MultipartFile image) {
+  public ResponseEntity<String> uploadCourseImage(
+      @Parameter(description = "ID of the course to upload image for", required = true)
+      @PathVariable int id,
+      @Parameter(description = "Image file to upload", required = true)
+      @RequestParam("image") MultipartFile image) {
     try {
       Course course = this.courseRepository.findById(id);
       if (course == null) {
