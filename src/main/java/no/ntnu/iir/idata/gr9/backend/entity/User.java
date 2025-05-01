@@ -31,6 +31,8 @@ public class User {
   @OneToMany(mappedBy = "user")
   @Schema(description = "The user's favorite courses.")
   private Set<FavoriteCourse> favorites = new HashSet<>();
+  @Schema(description = "The user's active status", example = "true")
+  private boolean active = true;
 
   public User() {
   }
@@ -188,5 +190,14 @@ public class User {
   public void addFavoriteCourse(Course course) {
     FavoriteCourse favoriteCourse = new FavoriteCourse(this, course);
     this.favorites.add(favoriteCourse);
+  }
+
+  /**
+   * Returns the user's active status.
+   *
+   * @return {@code true} if the user is active, {@code false} otherwise
+   */
+  public boolean isActive() {
+    return this.active;
   }
 }
