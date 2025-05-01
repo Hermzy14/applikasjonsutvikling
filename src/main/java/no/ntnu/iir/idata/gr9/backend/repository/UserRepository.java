@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.repository;
 
+import java.util.Optional;
 import no.ntnu.iir.idata.gr9.backend.entity.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     /**
      * Finds a user by its username.
      */
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     /**
      * Finds a user by its email.
