@@ -60,6 +60,8 @@ public class SecurityConfiguration {
         .authorizeHttpRequests((auth) -> auth.requestMatchers("/users/login").permitAll())
         // Products are also available to everyone
         .authorizeHttpRequests((auth) -> auth.requestMatchers("/courses").permitAll())
+        // Sending message from contact form is also available to everyone
+        .authorizeHttpRequests((auth) -> auth.requestMatchers("/messages").permitAll())
         // Allow HTTP OPTIONS requests - CORS pre-flight requests
         .authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.OPTIONS).permitAll())
         // Any other request will be authenticated with a stateless policy
