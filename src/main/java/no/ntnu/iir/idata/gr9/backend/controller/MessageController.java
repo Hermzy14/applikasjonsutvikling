@@ -1,5 +1,9 @@
 package no.ntnu.iir.idata.gr9.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import no.ntnu.iir.idata.gr9.backend.entity.Message;
 import no.ntnu.iir.idata.gr9.backend.repository.MessageRepository;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @CrossOrigin
 @RestController
+@Tag(name = "Message Management", description = "API endpoints for managing messages")
 public class MessageController {
   private final MessageRepository messageRepository;
 
@@ -32,6 +37,22 @@ public class MessageController {
    * @return HTTP 200 OK or error code with error message
    */
   @PostMapping("/messages")
+  @Operation(
+      summary = "Send a message",
+      description = "Saves a message from the contact form to the database."
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "Message sent successfully"
+          ),
+          @ApiResponse(
+              responseCode = "500",
+              description = "Error sending message"
+          )
+      }
+  )
   public ResponseEntity<?> sendMessage(@RequestBody Message message) {
     try {
       this.messageRepository.save(message);

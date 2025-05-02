@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,12 +13,17 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  */
 @CrossOrigin
 @Entity
+@Schema(description = "Represents a message entity which handles messages sent via contact form.")
 public class Message {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "The message's unique id.", example = "1")
   private int id;
+  @Schema(description = "The message senders name.", example = "John Doe")
   private String name;
+  @Schema(description = "The message senders email.", example = "john@doe.com")
   private String email;
+  @Schema(description = "The message body.", example = "Hello, I have a question about your service.")
   private String message;
 
   /**
