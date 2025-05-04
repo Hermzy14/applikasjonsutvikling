@@ -11,11 +11,24 @@ import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import no.ntnu.iir.idata.gr9.backend.entity.User;
 import no.ntnu.iir.idata.gr9.backend.entity.FavoriteCourse;
 import no.ntnu.iir.idata.gr9.backend.repository.UserRepository;
+import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationRequest;
+import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationResponse;
+import no.ntnu.iir.idata.gr9.backend.controller.AuthenticationController;
+import no.ntnu.iir.idata.gr9.backend.security.JwtUtil;
+import no.ntnu.iir.idata.gr9.backend.service.AccessUserService;
+import no.ntnu.iir.idata.gr9.backend.service.FileStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 /**
  * REST API controller for managing users.
@@ -26,6 +39,20 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final UserRepository userRepository;
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final AuthenticationManager authenticationManager;
+    private final AccessUserService accessUserService;
+    private final JwtUtil jwtUtil;
+
+    @Autowired
+    public UserController(
+            AuthenticationManager authenticationManager,
+            AccessUserService accessUserService,
+            JwtUtil jwtUtil
+    ) {
+        this.authenticationManager = authenticationManager;
+        this.accessUserService = accessUserService;
+        this.jwtUtil = jwtUtil;
+    }
 
   /**
    * Constructor for UserController.
@@ -81,6 +108,63 @@ public class UserController {
     logger.info("User {} registered successfully", user.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).body(user);
   }
+
+  /**
+   * authenticate a user and generate JWT token.
+   * <p>
+   * Endpoint: {@code POST /users/login}.
+   *
+   * @param user the user to authenticate
+   */
+    @PostMapping("/login")
+    @Operation(
+        summary = "User login",
+        description = "Authenticates a user and generates a JWT token for session management."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "User authenticated successfully",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Invalid username or password",
+            content = @Content
+        )
+    })
+    public ResponseEntity<?> loginUser(
+            @RequestBody AuthenticationRequest authenticationRequest
+    ) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authenticationRequest.getUsername(),
+                            authenticationRequest.getPassword()
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            UserDetails userDetails = accessUserService.loadUserByUsername(
+                    authenticationRequest.getUsername()
+            );
+
+            String jwt = jwtUtil.generateToken(userDetails);
+
+            return ResponseEntity.ok(new AuthenticationResponse(jwt));
+
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
   /**
    * Retrieve a user by ID (Admin and User themselves only).
