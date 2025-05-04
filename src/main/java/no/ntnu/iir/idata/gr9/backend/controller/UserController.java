@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
 
 /**
  * REST API controller for managing users.
@@ -39,28 +40,26 @@ import org.springframework.security.core.Authentication;
 public class UserController {
   private final UserRepository userRepository;
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private final AuthenticationManager authenticationManager;
-    private final AccessUserService accessUserService;
-    private final JwtUtil jwtUtil;
-
-    @Autowired
-    public UserController(
-            AuthenticationManager authenticationManager,
-            AccessUserService accessUserService,
-            JwtUtil jwtUtil
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.accessUserService = accessUserService;
-        this.jwtUtil = jwtUtil;
-    }
+  private final AuthenticationManager authenticationManager;
+  private final AccessUserService accessUserService;
+  private final JwtUtil jwtUtil;
 
   /**
    * Constructor for UserController.
    *
    * @param userRepository the repository for managing users
    */
-  public UserController(UserRepository userRepository) {
-    this.userRepository = userRepository;
+  @Autowired
+  public UserController(
+          UserRepository userRepository,
+          AuthenticationManager authenticationManager,
+          AccessUserService accessUserService,
+          JwtUtil jwtUtil
+  ) {
+      this.userRepository = userRepository;
+      this.authenticationManager = authenticationManager;
+      this.accessUserService = accessUserService;
+      this.jwtUtil = jwtUtil;
   }
 
   /**
@@ -114,7 +113,7 @@ public class UserController {
    * <p>
    * Endpoint: {@code POST /users/login}.
    *
-   * @param user the user to authenticate
+   * @param authenticationRequest the authentication request containing username and password
    */
     @PostMapping("/login")
     @Operation(
