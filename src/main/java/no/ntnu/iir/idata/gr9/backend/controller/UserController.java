@@ -139,7 +139,7 @@ public class UserController {
     public ResponseEntity<?> loginUser(
             @RequestBody AuthenticationRequest authenticationRequest
     ) {
-      System.out.println("🔐 loginUser method was called");
+      System.out.println("loginUser method was called");
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
