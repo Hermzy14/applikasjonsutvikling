@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,6 +43,8 @@ public class UserController {
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
   private final AuthenticationManager authenticationManager;
   private final AccessUserService accessUserService;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
 
   /**
@@ -90,10 +93,7 @@ public class UserController {
           content = @Content
       )
   })
-  public ResponseEntity<User> registerUser(
-      @Parameter(description = "User details for registration", required = true,
-          schema = @Schema(implementation = User.class))
-      @RequestBody User user) {
+  public ResponseEntity<User> registerUser(@RequestBody User user) {
     if (userRepository.existsByUsername(user.getUsername())) {
       logger.error("Username {} already exists", user.getUsername());
       return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -103,11 +103,12 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
     user.setIsAdmin(false);
+    // Hash the password before saving
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
     userRepository.save(user);
     logger.info("User {} registered successfully", user.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).body(user);
   }
-
   /**
    * authenticate a user and generate JWT token.
    * <p>
@@ -138,6 +139,7 @@ public class UserController {
     public ResponseEntity<?> loginUser(
             @RequestBody AuthenticationRequest authenticationRequest
     ) {
+      System.out.println("🔐 loginUser method was called");
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

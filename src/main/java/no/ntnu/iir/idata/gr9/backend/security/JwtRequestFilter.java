@@ -45,8 +45,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
    */
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                  FilterChain filterChain) throws
-      ServletException, IOException {
+                                  FilterChain filterChain) throws ServletException, IOException {
+    String path = request.getServletPath();
+
+    // Skip token check for public endpoints
+    if (path.equals("/users/login") || path.equals("/users/register")) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    // Continue with token check for protected routes
     String jwtToken = this.getJwtToken(request);
     String username = jwtToken != null ? this.getUsernameFrom(jwtToken) : null;
 
