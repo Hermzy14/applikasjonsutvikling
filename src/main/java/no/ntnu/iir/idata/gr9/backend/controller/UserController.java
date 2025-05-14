@@ -7,9 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import no.ntnu.iir.idata.gr9.backend.entity.User;
 import no.ntnu.iir.idata.gr9.backend.entity.FavoriteCourse;
+import no.ntnu.iir.idata.gr9.backend.repository.CourseRepository;
+import no.ntnu.iir.idata.gr9.backend.repository.FavoriteRepository;
 import no.ntnu.iir.idata.gr9.backend.repository.UserRepository;
 import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationRequest;
 import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationResponse;
@@ -40,6 +43,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 @Tag(name = "User Management", description = "API endpoints for managing user accounts and favorites")
 public class UserController {
   private final UserRepository userRepository;
+  @Autowired
+  private CourseRepository courseRepository;
+  @Autowired
+  private FavoriteRepository favoriteRepository;
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
   private final AuthenticationManager authenticationManager;
   private final AccessUserService accessUserService;
@@ -54,15 +61,15 @@ public class UserController {
    */
   @Autowired
   public UserController(
-          UserRepository userRepository,
-          AuthenticationManager authenticationManager,
-          AccessUserService accessUserService,
-          JwtUtil jwtUtil
+      UserRepository userRepository,
+      AuthenticationManager authenticationManager,
+      AccessUserService accessUserService,
+      JwtUtil jwtUtil
   ) {
-      this.userRepository = userRepository;
-      this.authenticationManager = authenticationManager;
-      this.accessUserService = accessUserService;
-      this.jwtUtil = jwtUtil;
+    this.userRepository = userRepository;
+    this.authenticationManager = authenticationManager;
+    this.accessUserService = accessUserService;
+    this.jwtUtil = jwtUtil;
   }
 
   /**
@@ -109,6 +116,7 @@ public class UserController {
     logger.info("User {} registered successfully", user.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).body(user);
   }
+
   /**
    * authenticate a user and generate JWT token.
    * <p>
@@ -116,56 +124,56 @@ public class UserController {
    *
    * @param authenticationRequest the authentication request containing username and password
    */
-    @PostMapping("/login")
-    @Operation(
-        summary = "User login",
-        description = "Authenticates a user and generates a JWT token for session management."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "User authenticated successfully",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = String.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "401",
-            description = "Invalid username or password",
-            content = @Content
-        )
-    })
-    public ResponseEntity<?> loginUser(
-            @RequestBody AuthenticationRequest authenticationRequest
-    ) {
-      System.out.println("loginUser method was called");
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getUsername(),
-                            authenticationRequest.getPassword()
-                    )
-            );
+  @PostMapping("/login")
+  @Operation(
+      summary = "User login",
+      description = "Authenticates a user and generates a JWT token for session management."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "User authenticated successfully",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = String.class)
+          )
+      ),
+      @ApiResponse(
+          responseCode = "401",
+          description = "Invalid username or password",
+          content = @Content
+      )
+  })
+  public ResponseEntity<?> loginUser(
+      @RequestBody AuthenticationRequest authenticationRequest
+  ) {
+    System.out.println("loginUser method was called");
+    try {
+      Authentication authentication = authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(
+              authenticationRequest.getUsername(),
+              authenticationRequest.getPassword()
+          )
+      );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+      SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            UserDetails userDetails = accessUserService.loadUserByUsername(
-                    authenticationRequest.getUsername()
-            );
+      UserDetails userDetails = accessUserService.loadUserByUsername(
+          authenticationRequest.getUsername()
+      );
 
-            String jwt = jwtUtil.generateToken(userDetails);
+      String jwt = jwtUtil.generateToken(userDetails);
 
-            return ResponseEntity.ok(new AuthenticationResponse(jwt));
+      return ResponseEntity.ok(new AuthenticationResponse(jwt));
 
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    } catch (BadCredentialsException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    } catch (UsernameNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+  }
 
   /**
    * Retrieve a user by ID (Admin and User themselves only).
@@ -252,13 +260,13 @@ public class UserController {
   /**
    * Add a course to favorites.
    * <p>
-   * Endpoint: {@code POST /users/{id}/favorites}.
+   * Endpoint: {@code POST users/{username}/favorites/{courseId}}.
    *
-   * @param id     the ID of the user to add favorite for
-   * @param course the course to add to favorites
+   * @param username the username of the user to add favorite for
+   * @param courseId the ID of the course to add to favorites
    * @return the created favorite course relationship or not found status
    */
-  @PostMapping("/{id}/favorites")
+  @PostMapping("/{username}/favorites/{courseId}")
   @Operation(
       summary = "Add course to favorites",
       description = "Adds a specified course to the user's favorites list. " +
@@ -275,25 +283,56 @@ public class UserController {
       ),
       @ApiResponse(
           responseCode = "404",
-          description = "User not found",
+          description = "User or course not found",
+          content = @Content
+      ),
+      @ApiResponse(
+          responseCode = "409",
+          description = "Course already in favorites",
           content = @Content
       )
   })
   public ResponseEntity<FavoriteCourse> addCourseToFavorites(
-      @Parameter(description = "ID of the user to add favorite for", required = true)
-      @PathVariable int id,
-      @Parameter(description = "Course to add to favorites", required = true,
-          schema = @Schema(implementation = Course.class))
-      @RequestBody Course course) {
-    User user = userRepository.findById(id);
-    if (user == null) {
-      logger.error("User with ID {} not found", id);
+      @Parameter(description = "Username of the user to add favorite for", required = true)
+      @PathVariable String username,
+      @Parameter(description = "ID of the course to add to favorites", required = true)
+      @PathVariable int courseId) {
+
+    // Find the user
+    Optional<User> userOpt = this.userRepository.findByUsername(username);
+    if (userOpt.isEmpty()) {
+      logger.error("User with username {} not found", username);
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    // Find the course
+    Course course = courseRepository.findById(courseId);
+    if (course == null) {
+      logger.error("Course with ID {} not found", courseId);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    User user = userOpt.get();
+
+    // Check if the course is already in favorites
+    for (FavoriteCourse favoriteCourse : user.getFavorites()) {
+      if (favoriteCourse.getCourse().getId() == courseId) {
+        logger.error("Course '{}' already in favorites for user {}", course.getTitle(), username);
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+      }
+    }
+
+    // Add the course to favorites
     FavoriteCourse favoriteCourse = new FavoriteCourse(user, course);
+
+    // Save the favorite course directly using the repository
+    favoriteRepository.save(favoriteCourse);
+
+    // Update user's favorites collection and save user
     user.getFavorites().add(favoriteCourse);
     userRepository.save(user);
-    logger.info("Course {} added to favorites for user {}", course.getTitle(), id);
+
+    logger.info("Course '{}' added to favorites for user {}", course.getTitle(), username);
     return ResponseEntity.status(HttpStatus.CREATED).body(favoriteCourse);
   }
 

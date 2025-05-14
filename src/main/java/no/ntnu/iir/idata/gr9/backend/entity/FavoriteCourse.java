@@ -1,5 +1,6 @@
 package no.ntnu.iir.idata.gr9.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,11 +23,13 @@ public class FavoriteCourse {
   @ManyToOne
   @JoinColumn(name = "user_id")
   @Schema(description = "The user who favorited the course.")
+  @JsonIgnore
   private User user;
 
   @ManyToOne
   @JoinColumn(name = "course_id")
   @Schema(description = "The course that was favorited.")
+  @JsonIgnore
   private Course course;
 
   public FavoriteCourse() {
