@@ -7,7 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import no.ntnu.iir.idata.gr9.backend.dto.FavoriteCourseDTO;
 import no.ntnu.iir.idata.gr9.backend.entity.Course;
 import no.ntnu.iir.idata.gr9.backend.entity.User;
 import no.ntnu.iir.idata.gr9.backend.entity.FavoriteCourse;
@@ -16,10 +20,8 @@ import no.ntnu.iir.idata.gr9.backend.repository.FavoriteRepository;
 import no.ntnu.iir.idata.gr9.backend.repository.UserRepository;
 import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationRequest;
 import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationResponse;
-import no.ntnu.iir.idata.gr9.backend.controller.AuthenticationController;
 import no.ntnu.iir.idata.gr9.backend.security.JwtUtil;
 import no.ntnu.iir.idata.gr9.backend.service.AccessUserService;
-import no.ntnu.iir.idata.gr9.backend.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -219,12 +221,12 @@ public class UserController {
   /**
    * Retrieve user's favorite courses (authenticated users).
    * <p>
-   * Endpoint: {@code GET /users/{id}/favorites}.
+   * Endpoint: {@code GET /users/{username}/favorites}.
    *
-   * @param id the ID of the user to retrieve favorites for
+   * @param username the username of the user to retrieve favorites for
    * @return the user's favorite courses or not found status
    */
-  @GetMapping("/{id}/favorites")
+  @GetMapping("/{username}/favorites")
   @Operation(
       summary = "Get user's favorite courses",
       description = "Retrieves all favorite courses for a specific user. " +
@@ -245,16 +247,23 @@ public class UserController {
           content = @Content
       )
   })
-  public ResponseEntity<Iterable<FavoriteCourse>> getUserFavorites(
-      @Parameter(description = "ID of the user to retrieve favorites for", required = true)
-      @PathVariable int id) {
-    User user = userRepository.findById(id);
-    if (user == null) {
-      logger.error("User with ID {} not found", id);
+  public ResponseEntity<List<FavoriteCourseDTO>> getUserFavorites(
+      @Parameter(description = "Username of the user to retrieve favorites for", required = true)
+      @PathVariable String username) {
+    Optional<User> user = userRepository.findByUsername(username);
+
+    if (user.isEmpty()) {
+      logger.error("User with username {} not found", username);
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-    logger.info("User with ID {} found", id);
-    return ResponseEntity.ok(user.getFavorites());
+
+    List<FavoriteCourseDTO> favoriteDTOs = user.get().getFavorites().stream()
+        .map(FavoriteCourseDTO::new)
+        .collect(Collectors.toList());
+
+    logger.info("Favorite courses found for user {}", username);
+
+    return ResponseEntity.ok(favoriteDTOs);
   }
 
   /**
@@ -292,7 +301,7 @@ public class UserController {
           content = @Content
       )
   })
-  public ResponseEntity<FavoriteCourse> addCourseToFavorites(
+  public ResponseEntity<FavoriteCourseDTO> addCourseToFavorites(
       @Parameter(description = "Username of the user to add favorite for", required = true)
       @PathVariable String username,
       @Parameter(description = "ID of the course to add to favorites", required = true)
@@ -333,19 +342,20 @@ public class UserController {
     userRepository.save(user);
 
     logger.info("Course '{}' added to favorites for user {}", course.getTitle(), username);
-    return ResponseEntity.status(HttpStatus.CREATED).body(favoriteCourse);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(new FavoriteCourseDTO(favoriteCourse));
   }
 
   /**
    * Remove a course from favorites.
    * <p>
-   * Endpoint: {@code DELETE /users/{id}/favorites}.
+   * Endpoint: {@code DELETE /users//{username}/favorites/{courseId}}.
    *
-   * @param id     the ID of the user to remove favorite for
-   * @param course the course to remove from favorites
+   * @param username the username of the user to remove favorite for
+   * @param courseId the courseId of the course to remove from favorites
    * @return no content response or not found status
    */
-  @DeleteMapping("/{id}/favorites")
+  @DeleteMapping("/{username}/favorites/{courseId}")
   @Operation(
       summary = "Remove course from favorites",
       description = "Removes a specified course from the user's favorites list. " +
@@ -364,23 +374,43 @@ public class UserController {
       )
   })
   public ResponseEntity<Void> removeCourseFromFavorites(
-      @Parameter(description = "ID of the user to remove favorite for", required = true)
-      @PathVariable int id,
+      @Parameter(description = "Username of the user to remove favorite for", required = true)
+      @PathVariable String username,
       @Parameter(description = "Course to remove from favorites", required = true,
           schema = @Schema(implementation = Course.class))
-      @RequestBody Course course) {
-    User user = userRepository.findById(id);
-    if (user == null) {
-      logger.error("User with ID {} not found", id);
+      @PathVariable int courseId) {
+    Optional<User> userOpt = userRepository.findByUsername(username);
+    if (userOpt.isEmpty()) {
+      logger.error("User with username {} not found", username);
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-    FavoriteCourse favoriteCourse = new FavoriteCourse(user, course);
-    if (!user.getFavorites().remove(favoriteCourse)) {
-      logger.error("Course {} not found in favorites for user {}", course.getTitle(), id);
+
+    User user = userOpt.get();
+    // Check if the course is in favorites
+    FavoriteCourse favoriteCourse = getFavoriteCourse(courseId, user);
+    if (favoriteCourse == null) {
+      logger.error("Course with ID {} not found in favorites for user {}", courseId, username);
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+    // Remove the course from favorites
+    favoriteRepository.delete(favoriteCourse);
+    user.getFavorites().remove(favoriteCourse);
     userRepository.save(user);
-    logger.info("Course {} removed from favorites for user {}", course.getTitle(), id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    logger.info("Course with ID {} removed from favorites for user {}", courseId, username);
+    return ResponseEntity.noContent().build();
+  }
+
+  private static FavoriteCourse getFavoriteCourse(int courseId, User user) {
+    FavoriteCourse favoriteCourse = null;
+    Set<FavoriteCourse> userFavorites = user.getFavorites();
+
+    for (FavoriteCourse fc : userFavorites) {
+      if (fc.getCourse().getId() == courseId) {
+        favoriteCourse = fc;
+        break;
+      }
+    }
+
+    return favoriteCourse;
   }
 }
