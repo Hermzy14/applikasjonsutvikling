@@ -46,12 +46,12 @@ public class OrderController {
   /**
    * Get all orders for a specific user.
    * <p>
-   * Endpoint: {@code GET /orders/user/{userId}}.
+   * Endpoint: {@code GET /orders/{username}}.
    *
-   * @param userId the id of the user
+   * @param username the username of the user
    * @return list of orders for that user
    */
-  @GetMapping("/user/{userId}")
+  @GetMapping("/{username}")
   @Operation(
       summary = "Get orders by user ID",
       description = "Retrieves all orders associated with a specific user."
@@ -69,62 +69,33 @@ public class OrderController {
           responseCode = "204",
           description = "No orders found for the specified user",
           content = @Content
-      )
+      ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(type = "object", example = "{\"status\":404,\"message\":\"User not found\"}")
+            )
+        )
   })
   public ResponseEntity<List<Order>> getOrdersByUser(
-      @Parameter(description = "ID of the user to retrieve orders for", required = true)
-      @PathVariable int userId) {
-    logger.info("Getting orders for user with ID: {}", userId);
-    List<Order> userOrders = orderRepository.findByUser_Id(userId);
-
-    if (userOrders.isEmpty()) {
-      logger.warn("No orders found for user with ID: {}", userId);
-      return ResponseEntity.noContent().build(); // 204 No Content
+      @Parameter(description = "Username of the user to retrieve orders for", required = true)
+      @PathVariable String username) {
+    logger.info("Getting orders for user: {}", username);
+    Optional<User> userOptional = userRepository.findByUsername(username);
+    if (userOptional.isEmpty()) {
+      logger.error("User with username {} not found", username);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
     }
-
-    return ResponseEntity.ok(userOrders); // 200 OK
-  }
-
-  /**
-   * Get order by id.
-   * <p>
-   * Endpoint: {@code GET /orders/{id}}.
-   *
-   * @param id the id of the order
-   * @return the order with the specified id
-   */
-  @GetMapping("/{id}")
-  @Operation(
-      summary = "Get order by ID",
-      description = "Retrieves a specific order using its unique identifier."
-  )
-  @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "Order found and returned",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = Order.class)
-          )
-      ),
-      @ApiResponse(
-          responseCode = "404",
-          description = "Order not found",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(type = "object", example = "{\"status\":404,\"message\":\"Order not found\"}")
-          )
-      )
-  })
-  public ResponseEntity<Order> getOrderById(
-      @Parameter(description = "ID of the order to retrieve", required = true)
-      @PathVariable int id) {
-    logger.info("Getting order with id: {}", id);
-    Order order = orderRepository.findById(id);
-    if (order == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+    User user = userOptional.get();
+    List<Order> orders = orderRepository.findByUser_Id(user.getId());
+    if (orders.isEmpty()) {
+      logger.warn("No orders found for user: {}", username);
+      return ResponseEntity.noContent().build();
     }
-    return ResponseEntity.ok(order);
+    logger.info("Found {} orders for user: {}", orders.size(), username);
+    return ResponseEntity.ok(orders);
   }
 
   /**
