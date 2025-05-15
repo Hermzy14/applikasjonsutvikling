@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import no.ntnu.iir.idata.gr9.backend.entity.Order;
+import no.ntnu.iir.idata.gr9.backend.entity.User;
 import no.ntnu.iir.idata.gr9.backend.repository.OrderRepository;
+import no.ntnu.iir.idata.gr9.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,14 +31,16 @@ import java.util.List;
 public class OrderController {
   private final OrderRepository orderRepository;
   private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+  private final UserRepository userRepository;
 
   /**
    * Constructor for OrderController.
    *
    * @param orderRepository the repository for managing orders
    */
-  public OrderController(OrderRepository orderRepository) {
+  public OrderController(OrderRepository orderRepository, UserRepository userRepository) {
     this.orderRepository = orderRepository;
+    this.userRepository = userRepository;
   }
 
   /**
@@ -125,12 +130,12 @@ public class OrderController {
   /**
    * Create a new order.
    * <p>
-   * Endpoint: {@code POST /orders}.
+   * Endpoint: {@code POST /orders/{username}}.
    *
    * @param order the order to create
    * @return the created order
    */
-  @PostMapping
+  @PostMapping("/{username}")
   @Operation(
       summary = "Create a new order",
       description = "Creates a new order in the system. Sets the current date if not provided."
@@ -145,6 +150,14 @@ public class OrderController {
           )
       ),
       @ApiResponse(
+          responseCode = "404",
+          description = "User not found",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(type = "object", example = "{\"status\":404,\"message\":\"User not found\"}")
+          )
+      ),
+      @ApiResponse(
           responseCode = "409",
           description = "Order already exists",
           content = @Content(
@@ -154,10 +167,20 @@ public class OrderController {
       )
   })
   public ResponseEntity<String> createOrder(
+      @Parameter(description = "ID of the user placing the order", required = true)
+      @PathVariable String username,
       @Parameter(description = "Order object to be created", required = true,
           schema = @Schema(implementation = Order.class))
       @RequestBody Order order) {
     logger.info("Creating new order with ID: {}", order.getId());
+
+    Optional<User> userOptional = userRepository.findByUsername(username);
+    if (userOptional.isEmpty()) {
+      logger.error("User with username {} not found", username);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+    }
+    User user = userOptional.get();
+    order.setUser(user);
 
     if (orderRepository.existsById(order.getId())) {
       logger.error("Order with ID {} already exists", order.getId());
@@ -170,7 +193,7 @@ public class OrderController {
     }
 
     orderRepository.save(order);
-    logger.info("Order saved successfully");
+    logger.info("Order saved successfully for user {}", user.getId());
     return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
   }
 
