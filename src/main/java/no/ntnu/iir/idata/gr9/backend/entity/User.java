@@ -115,7 +115,7 @@ public class User {
   }
 
   /**
-   * Sets the user's email. TODO: The email must be formatted like an email
+   * Sets the user's email.
    *
    * @param email the user's email
    */
@@ -142,7 +142,7 @@ public class User {
   }
 
   /**
-   * Sets the user's password. TODO: The password must be hashed
+   * Sets the user's password.
    *
    * @param password the user's password
    */

@@ -115,7 +115,7 @@ public class Course {
   }
 
   /**
-   * Sets the course's id. TODO: The id must be unique and a positive integer.
+   * Sets the course's id.
    *
    * @param id the course's id
    */
@@ -241,7 +241,7 @@ public class Course {
   }
 
   /**
-   * Sets the course's ECTS credits. TODO: The ECTS credits must be a positive number.
+   * Sets the course's ECTS credits.
    *
    * @param ects the course's ECTS credits
    */
@@ -259,7 +259,7 @@ public class Course {
   }
 
   /**
-   * Sets the course's hours per week. TODO: The hours per week must be a positive integer.
+   * Sets the course's hours per week.
    *
    * @param hoursPerWeek the course's hours per week
    */

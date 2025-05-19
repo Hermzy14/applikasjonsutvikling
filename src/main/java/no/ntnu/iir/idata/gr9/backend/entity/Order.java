@@ -165,7 +165,7 @@ public class Order {
   /**
    * Sets the order's price.
    *
-   * @param price the order's price TODO: kanskje endre på dette?
+   * @param price the order's price
    */
   public void setPrice(double price) {
     if (price < 0) {
@@ -186,7 +186,7 @@ public class Order {
   /**
    * Sets the order's discount.
    *
-   * @param discount the order's discount TODO: kanskje endre på dette?
+   * @param discount the order's discount
    */
   public void setDiscount(double discount) {
     if (discount < 0) {

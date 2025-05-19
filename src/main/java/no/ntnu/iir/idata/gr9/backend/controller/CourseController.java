@@ -252,7 +252,6 @@ public class CourseController {
    * Toggle visibility for a course.
    * <p>
    * Endpoint: {@code PATCH /courses/toggle_visibility/{id}}.
-   * TODO: Should only be available for admins!
    *
    * @param id the ID of the course to toggle visibility
    * @return a response entity indicating the result of the operation

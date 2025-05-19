@@ -77,7 +77,7 @@ public class CourseProvider {
   }
 
   /**
-   * Sets the course provider's id. TODO: The id must be unique and a positive integer.
+   * Sets the course provider's id.
    *
    * @param id the course provider's id
    */
@@ -113,7 +113,7 @@ public class CourseProvider {
   }
 
   /**
-   * Sets the course provider's price. TODO: The price must be a positive number.
+   * Sets the course provider's price.
    *
    * @param price the course provider's price
    */
