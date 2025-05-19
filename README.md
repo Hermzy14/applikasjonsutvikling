@@ -1,13 +1,55 @@
-# Applikasjonsutvikling
-This is the backend to our final exam in IDATA2301 Webteknologi and IDATA2306 Applikasjonsutvikling.
+# Learniverse - Spring Boot Backend
 
-## Environment variables
-To run this project, you need to set the following environment variables:
-- `DB_URL`: The URL to the database.
-- `DB_USERNAME`: The username for the database.
-- `DB_PASSWORD`: The password for the database.
-- `FILE_UPLOAD_DIR`: The path to the directory where files will be uploaded.
-- `JWT_SECRET`: The secret key for JWT authentication.
+This is the backend service for our final exam in IDATA2301 Webteknologi and IDATA2306 Applikasjonsutvikling. The application provides a RESTful API for a learning platform that allows users to browse courses, register, authenticate, and interact with course content.
 
-See `.env.example` for an example of how to set these variables. 
-You can create a `.env` file in the root directory of the project and set the variables there.
+## Project Overview
+
+- **Framework**: Spring Boot
+- **Authentication**: JWT-based authentication
+- **Database**: MySQL
+- **Build Tool**: Maven
+
+## Features
+
+- User registration and authentication
+- Course listing and searching
+- Course categorization
+- File uploads for course images
+- Contact form messaging
+
+## Getting Started
+
+### Prerequisites
+
+- Java 11 or higher
+- Maven
+- MySQL database
+
+### Environment Setup
+
+Create a `.env` file in the root directory with the following variables:
+
+```dotenv
+# Database configuration
+DB_URL=jdbc:mysql://localhost:3306/learniverse
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+# JWT Configuration
+JWT_SECRET_KEY=your_secret_key
+
+# File storage configuration
+FILE_UPLOAD_DIR=./course-images
+```
+
+### Database Setup
+1. Create a MySQL database named learniverse
+2. The application will create the necessary tables on startup
+
+### Running the Application
+1. Clone the repository
+2. Configure environment variables as described above
+3. Build the project:
+`mvn clean install`
+4. Run the application:
+`mvn spring-boot:run`

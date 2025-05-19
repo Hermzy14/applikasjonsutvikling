@@ -165,7 +165,7 @@ public class OrderController {
 
     orderRepository.save(order);
     logger.info("Order saved successfully for user {}", user.getId());
-    return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
+    return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully, ID: " + order.getId());
   }
 
   /**
