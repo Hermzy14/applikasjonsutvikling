@@ -21,8 +21,9 @@ public class CorsConfiguration implements WebMvcConfigurer {
             "http://localhost:3000",  // Assuming React default port
             "http://localhost:8080",  // Another common dev port
             "http://localhost:5173",  // Vite default port
-            "http://127.0.0.1:3000"   // Sometimes needed for Windows
-        )  // In production, specify actual origins
+            "http://127.0.0.1:3000",   // Sometimes needed for Windows
+            "https://webteknologi9.netlify.app/" // Production URL
+        )
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true)
