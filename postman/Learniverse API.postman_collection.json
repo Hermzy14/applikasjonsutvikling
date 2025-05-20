@@ -1,0 +1,829 @@
+{
+	"info": {
+		"_postman_id": "fe1717ea-8256-48a7-bfc4-3fd55cd54a48",
+		"name": "Learniverse API",
+		"description": "Collection of API endpoints for the Learniverse platform. Includes authentication, course management, user management, orders, and messaging.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41750192"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"authToken\", jsonData.jwt);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Token is received\", function () {",
+									"    pm.expect(jsonData.jwt).to.exist;",
+									"    pm.expect(jsonData.jwt.length).to.be.greaterThan(10);",
+									"    console.log(\"Auth token saved to environment\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Authenticate a user and receive a JWT token."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for user authentication and token management"
+		},
+		{
+			"name": "Courses",
+			"item": [
+				{
+					"name": "Get All Courses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains courses\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    if (jsonData.length > 0) {",
+									"        pm.environment.set(\"firstCourseId\", jsonData[0].id);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Retrieve all courses in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Visible Courses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains visible courses\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/visible",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"visible"
+							]
+						},
+						"description": "Retrieve only courses marked as visible to users."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Course has expected properties\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.title).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Retrieve a specific course by its ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Courses by Title",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Search returns results\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses/search?query={{searchQuery}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "{{searchQuery}}"
+								}
+							]
+						},
+						"description": "Search for courses by title keyword."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Courses by Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Category contains courses\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/category/{{categoryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"category",
+								"{{categoryId}}"
+							]
+						},
+						"description": "Retrieve all courses belonging to a specific category."
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Course Visibility",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Course visibility is toggled\", function () {",
+									"    var jsonData = pm.response.text();",
+									"    pm.expect(jsonData.includes('visibility')).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/toggle_visibility/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"toggle_visibility",
+								"{{courseId}}"
+							]
+						},
+						"description": "Toggle the visibility of a course (requires authentication)."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for course management and retrieval"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"New user is created\", function () {",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.username).to.equal(pm.variables.get(\"newUsername\"));",
+									"});",
+									"",
+									"pm.environment.set(\"userId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a unique username using timestamp",
+									"const timestamp = Date.now();",
+									"const randomUsername = `testuser_${timestamp}`;",
+									"const randomEmail = `testuser_${timestamp}@example.com`;",
+									"",
+									"pm.environment.set(\"newUsername\", randomUsername);",
+									"pm.environment.set(\"newEmail\", randomEmail);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{newUsername}}\",\n    \"password\": \"{{newPassword}}\",\n    \"email\": \"{{newEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						},
+						"description": "Register a new user in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"User data is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.username).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Retrieve a specific user by their ID (requires authentication)."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for user management and information"
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 or 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201, 200]);",
+									"});",
+									"",
+									"pm.test(\"Order ID was received\", function () {",
+									"    const responseText = pm.response.text();",
+									"    pm.expect(responseText).to.include(\"Order created successfully, ID:\");",
+									"",
+									"    const match = responseText.match(/ID: (\\d+)/);",
+									"",
+									"    if (match && match[1]) {",
+									"        const orderId = match[1];",
+									"        pm.environment.set(\"createdOrderId\", orderId);",
+									"        console.log(\"Saved Order ID: \" + pm.environment.get(\"createdOrderId\"));",
+									"        pm.expect(orderId).to.not.be.empty;",
+									"    } else {",
+									"        pm.expect.fail(\"Could not parse Order ID from response: \" + responseText);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderDate\": \"{{$isoTimestamp}}\",\n  \"price\": 100.0,\n  \"discount\": 10.0,\n  \"course\": {\n    \"id\": {{courseId}}\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{username}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{username}}"
+							]
+						},
+						"description": "Create a new order for a course (requires authentication)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Orders are retrieved\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{username}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{username}}"
+							]
+						},
+						"description": "Retrieve all orders for a specific user (requires authentication)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK or 204 No Content\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) { // Check if the response is 200 OK",
+									"    pm.test(\"Order deleted successfully\", function () {",
+									"        pm.expect(pm.response.text()).to.include(\"deleted\");",
+									"    });",
+									"} else if (pm.response.code === 204) { // Check if the response is 204 No Content",
+									"    pm.test(\"Order deleted successfully\", function () {",
+									"        pm.expect(pm.response.text()).to.be.empty;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{createdOrderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{createdOrderId}}"
+							]
+						},
+						"description": "Delete a specific order (requires authentication)."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing course orders"
+		},
+		{
+			"name": "Messages",
+			"item": [
+				{
+					"name": "Send Message",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Message sent successfully\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{contactName}}\",\n    \"email\": \"{{contactEmail}}\",\n    \"message\": \"{{contactMessage}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages"
+							]
+						},
+						"description": "Send a contact message to the system administrators."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for contact messages"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global Pre-request Script",
+					"// This will run before every request in the collection",
+					"",
+					"// Example: Generate a timestamp for use in requests",
+					"pm.variables.set('timestamp', new Date().getTime());",
+					"",
+					"// Example: Set a default username if not already set",
+					"if (!pm.environment.get('username')) {",
+					"    pm.environment.set('username', 'admin');",
+					"}",
+					"",
+					"// Example: Set a random ID for testing if needed",
+					"pm.variables.set('randomId', Math.floor(Math.random() * 1000) + 1);",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global Test Script",
+					"// This will run after every request in the collection",
+					"",
+					"// Example: Log response times for performance monitoring",
+					"console.log(\"Response time: \" + pm.response.responseTime + \" ms\");",
+					"",
+					"// Example: Verify that all responses have the correct content type",
+					"if (pm.response.headers.has(\"Content-Type\")) {",
+					"    var contentType = pm.response.headers.get(\"Content-Type\");",
+					"    if (contentType.includes(\"application/json\")) {",
+					"        try {",
+					"            var jsonData = pm.response.json();",
+					"            // JSON is valid",
+					"        } catch (e) {",
+					"            console.error(\"Response claims to be JSON but isn't valid: \" + e);",
+					"        }",
+					"    }",
+					"}",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "categoryId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "createdOrderId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "searchQuery",
+			"value": "java",
+			"type": "string"
+		},
+		{
+			"key": "newUsername",
+			"value": "testuser",
+			"type": "string"
+		},
+		{
+			"key": "newPassword",
+			"value": "password123",
+			"type": "string"
+		},
+		{
+			"key": "newEmail",
+			"value": "test@example.com",
+			"type": "string"
+		},
+		{
+			"key": "contactName",
+			"value": "Test Contact",
+			"type": "string"
+		},
+		{
+			"key": "contactEmail",
+			"value": "contact@example.com",
+			"type": "string"
+		},
+		{
+			"key": "contactMessage",
+			"value": "This is a test contact message",
+			"type": "string"
+		},
+		{
+			"key": "newCategoryName",
+			"value": "Test Category",
+			"type": "string"
+		},
+		{
+			"key": "newCategoryDescription",
+			"value": "This is a test category",
+			"type": "string"
+		}
+	]
+}
