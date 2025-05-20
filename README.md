@@ -24,6 +24,7 @@ This is the backend service for our final exam in IDATA2301 Webteknologi and IDA
 - Java 11 or higher
 - Maven
 - MySQL database
+- Connection to NTNU network
 
 ### Environment Setup
 
