@@ -1,5 +1,10 @@
 package no.ntnu.iir.idata.gr9.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationRequest;
 import no.ntnu.iir.idata.gr9.backend.dto.AuthenticationResponse;
 import no.ntnu.iir.idata.gr9.backend.service.AccessUserService;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @CrossOrigin
 @RestController
+@Tag(name = "Authentication", description = "API endpoints for user authentication")
 public class AuthenticationController {
   @Autowired
   private AuthenticationManager authenticationManager;
@@ -39,8 +45,18 @@ public class AuthenticationController {
    * @return ResponseEntity with JWT token or error message
    */
   @PostMapping("/api/users/login")
+  @Operation(
+      summary = "Authenticate user",
+      description = "Authenticates a user and returns a JWT token."
+  )
   public ResponseEntity<?> authenticateUser(
-      @RequestBody AuthenticationRequest authenticationRequest) {
+      @Parameter(
+          description = "Authentication request containing username and password",
+          required = true,
+          content = @Content(schema = @Schema(implementation = AuthenticationRequest.class))
+      )
+      @RequestBody
+      AuthenticationRequest authenticationRequest) {
     ResponseEntity<?> response;
 
     try {

@@ -64,6 +64,11 @@ public class SecurityConfiguration {
         .authorizeHttpRequests((auth) -> auth.requestMatchers("/courses/category/*").permitAll())
         // Sending message from contact form is also available to everyone
         .authorizeHttpRequests((auth) -> auth.requestMatchers("/messages").permitAll())
+        // Allow Swagger UI and API docs
+        .authorizeHttpRequests((auth) -> auth.requestMatchers("/swagger-ui/**").permitAll())
+        .authorizeHttpRequests((auth) -> auth.requestMatchers("/v3/api-docs/**").permitAll())
+        .authorizeHttpRequests((auth) -> auth.requestMatchers("/swagger-resources/**").permitAll())
+        .authorizeHttpRequests((auth) -> auth.requestMatchers("/webjars/**").permitAll())
         // Allow HTTP OPTIONS requests - CORS pre-flight requests
         .authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.OPTIONS).permitAll())
         // Any other request will be authenticated with a stateless policy
