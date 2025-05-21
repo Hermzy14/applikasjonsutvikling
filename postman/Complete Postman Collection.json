@@ -458,6 +458,167 @@
 						"description": "Retrieve a specific user by their ID (requires authentication)."
 					},
 					"response": []
+				},
+				{
+					"name": "AddFav",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response indicates success\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.courseId).to.exist;",
+									"    pm.expect(jsonData.courseTitle).to.exist;",
+									"});",
+									"",
+									"// Extract the favorite ID from the request URL and set it as a collection variable",
+									"const urlParts = pm.request.url.path;",
+									"const favoriteId = urlParts[urlParts.length - 1];",
+									"pm.collectionVariables.set(\"favoriteId\", favoriteId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/{{newUsername}}/favorites/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"{{newUsername}}",
+								"favorites",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserFav",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/{{newUsername}}/favorites",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"{{newUsername}}",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteFav",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 No Content or 200 OK\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([204, 200]);",
+									"});",
+									"",
+									"pm.test(\"Response indicates success or no content\", function () {",
+									"    // Depending on API implementation, 204 might have no body, or 200 might have a message",
+									"    if (pm.response.code === 200) {",
+									"        pm.expect(pm.response.text()).to.include(\"Favorite deleted successfully\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/{{newUsername}}/favorites/{{favoriteId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"{{newUsername}}",
+								"favorites",
+								"{{favoriteId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints for user management and information"
@@ -824,6 +985,10 @@
 			"key": "newCategoryDescription",
 			"value": "This is a test category",
 			"type": "string"
+		},
+		{
+			"key": "favoriteId",
+			"value": ""
 		}
 	]
 }
